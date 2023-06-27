@@ -1,6 +1,7 @@
 """ These objects perform individual tests on a password, and report `True` of `False`. """
 
 from .tests_base import ATest
+import re
 
 
 class Length(ATest):
@@ -53,6 +54,33 @@ class NonLettersLc(Uppercase):
     def test(self, ps):
         non_lowercase_letters = ps.length - ps.letters_lowercase
         return non_lowercase_letters >= self.count
+
+class Letters(Uppercase):
+    """ Test whether the password has >= `count` letter characters """
+
+    def test(self, ps):
+        return ps.letters >= self.count
+    
+class Regex(ATest):
+    """ Test whether the password matches a set regex """
+
+    def __init__(self, regex):
+        super(Regex, self).__init__(regex)
+        self.regex = regex
+
+    def test(self, ps):
+        return bool(re.match(self.regex, ps.password))
+    
+
+class NoBlankspace(ATest): 
+    """ Test whether the password contains a blankspace """
+
+    def __init__(self, should_check):
+        super(NoBlankspace, self).__init__(should_check)
+        self.should_check = should_check
+
+    def test(self, ps):
+        return not self.should_check or not bool(re.search(r"\s", ps.password))
 
 
 class EntropyBits(ATest):
